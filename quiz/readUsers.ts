@@ -1,13 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { promises as fsPromises } from 'fs';
-
-interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  username: string;
-  email: string;
-}
+import { User } from './types';
 
 let users: User[] = [];
 const dataFile = '../data/users.json';

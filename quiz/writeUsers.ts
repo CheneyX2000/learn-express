@@ -1,15 +1,9 @@
 import express, { Request, Response } from 'express';
 import { promises as fsPromises } from 'fs';
+import { User } from './types';
 
 const router = express.Router()
 
-interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  username: string;
-  email: string;
-}
 const dataFile = '../data/users.json';
 //const dataFile = path.resolve(__dirname, '..', 'data', 'users.json');
 

@@ -12,7 +12,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/read', readRouter);
-
 app.use('/write', writeRouter);
 
 app.listen(port, () => {
