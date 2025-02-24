@@ -12,14 +12,14 @@ interface User {
   lastName: string;
   username: string;
   email: string;
-}
+};
 
 /**
  * A type that represents the request received by the server
  */
 interface UserRequest extends Request {
   users?: User[];
-}
+};
 
 // the server application object created by the express server
 const app: Express = express();
@@ -30,7 +30,7 @@ const dataFile = '../data/users.json';
 
 let users: User[];
 
-// a synchronous function that reads the user data from the file
+// asynchronous function that reads the user data from the file
 async function readUsersFile() {
   try {
     console.log('reading file ... ');
@@ -64,10 +64,19 @@ app.use('/read/usernames', addMsgToRequest);
 
 // a route that sends the usernames of the users to the client
 app.get('/read/usernames', (req: UserRequest, res: Response) => {
-  let usernames = req.users?.map((user) => {
-    return { id: user.id, username: user.username };
+  let name = req.params.name;
+  let users_with_name = req.users?.filter(function(user) {
+    return user.username === name;
   });
-  res.send(usernames);
+
+  if (users_with_name?.length === 0) {
+    res.send({
+      error: {message: `${name} not found`, status: 404}
+    });
+  }
+  else {
+    res.send(users_with_name);
+  }
 });
 
 // a middleware function that parses the request body to json

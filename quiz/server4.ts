@@ -1,13 +1,20 @@
-import fs from 'fs';
-import path from 'path';
-import express, { Express, Request, Response, NextFunction } from 'express';
+import express, { Express } from 'express';
 import cors from 'cors';
+import readRouter from './readUsers';
+import writeRouter from './writeUsers';
 
-const app = express();
+const app: Express = express();
 const port = 8000;
-const dataFile = '../data/users.json';
 
+app.use(cors({ origin: 'http://localhost:3000' }));
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use('/read', readRouter);
+
+app.use('/write', writeRouter);
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+  console.log(`Server is listening on port ${port}`);
+});
