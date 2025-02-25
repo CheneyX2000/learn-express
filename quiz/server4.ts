@@ -12,13 +12,13 @@ const port = 8000;
 
 let users: User[] | undefined;
 
-fs.readFile(path.resolve(__dirname, '../data/user.json'), 'utf-8', function(err, data) {
+fs.readFile(path.resolve(__dirname, '../data/user.json'), 'utf-8', (err, data) => {
   console.log('reading file ... ');
   if (err) throw err;
   users = JSON.parse(data);
 })
 
-const addMsgToRequest = function (req: UserRequest, res: Response, next: NextFunction) {
+const addMsgToRequest = (req: UserRequest, res: Response, next: NextFunction) => {
   if (users) {
     req.users = users;
     next();
@@ -30,10 +30,10 @@ const addMsgToRequest = function (req: UserRequest, res: Response, next: NextFun
 }
 
 app.use(cors({origin: 'http://localhost:3000'}));
-app.use(addMsgToRequest);
-app.use('/read', readUsers);
 app.use(express.json);
 app.use(express.urlencoded({ extended: true }));
+app.use(addMsgToRequest);
+app.use('/read', readUsers);
 app.use('/write', writeUsers);
 
 app.listen(port, () => {
