@@ -1,49 +1,30 @@
-import { Router, Request, Response, NextFunction } from 'express';
-import { promises as fsPromises } from 'fs';
-import { User } from './types';
+import express, { Request, Response } from 'express';
+import { User, UserRequest } from './types';
 
-let users: User[] = [];
-const dataFile = '../data/users.json';
-// const dataFile = path.resolve(__dirname, '..', 'data', 'users.json');
+const router = express.Router();
 
-async function loadUsers(): Promise<void> {
-  try {
-    const data = await fsPromises.readFile(dataFile, 'utf8');
-    users = JSON.parse(data) as User[];
-    console.log('Users loaded successfully.');
-  } catch (error) {
-    console.error('Failed to load users:', error);
-    users = [];
+router.get('/usernames', (req: UserRequest, res: Response) => {
+  if (!req.users) {
+    return res.status(404).send({ error: { message: "Users not found", status: 404 } });
   }
-}
-
-loadUsers();
-
-const router = Router();
-
-router.use((req: Request, res: Response, next: NextFunction) => {
-  if (!users || users.length === 0) {
-    return res.status(404).json({ error: 'No users found or file empty' });
-  }
-  next();
+  let usernames = req.users.map(user => ({ id: user.id, username: user.username }));
+  res.send(usernames);
 });
 
-router.get('/', (req: Request, res: Response) => {
-  res.json(users);
-});
-
-
-router.get('/:username', (req: Request, res: Response) => {
-  const { username } = req.params;
-  const foundUser = users.find((user) => user.username === username);
-
-  if (!foundUser) {
-    return res
-      .status(404)
-      .json({ error: `${username} not found` });
+router.get('/username/:name', (req: UserRequest, res: Response) => {
+  if (!req.users) {
+    return res.status(404).send({ error: { message: 'User not found', status: 404 } });
   }
-
-  res.json(foundUser);
+  let name = req.params.name;
+  let users_with_name = req.users.filter(user => user.username === name);
+  console.log(users_with_name);
+  if (users_with_name.length === 0) {
+    res.send({
+      error: { message: `${name} not found`, status: 404 }
+    });
+  } else {
+    res.send(users_with_name);
+  }
 });
 
 export default router;

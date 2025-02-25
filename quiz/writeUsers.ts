@@ -1,33 +1,22 @@
 import express, { Request, Response } from 'express';
-import { promises as fsPromises } from 'fs';
-import { User } from './types';
+import fs from 'fs';
+import path from 'path';
+import { User, UserRequest } from './types';
 
-const router = express.Router()
+const router = express.Router();
 
-const dataFile = '../data/users.json';
-//const dataFile = path.resolve(__dirname, '..', 'data', 'users.json');
-
-router.post('/adduser', async (req: Request, res: Response) => {
-  try {
-    const data = await fsPromises.readFile(dataFile, 'utf8');
-    let users: User[] = JSON.parse(data) as User[];
-
-    const newUser = req.body as User;
-
-    users.push(newUser);
-
-    await fsPromises.writeFile(
-      dataFile,
-      JSON.stringify(users, null, 2),
-      'utf8'
-    );
-
-    console.log('User saved successfully');
-    return res.status(201).json({ message: 'User added successfully.' });
-  } catch (error) {
-    console.error('Error handling the request:', error);
-    return res.status(500).json({ error: 'Internal Server Error' });
+router.post('/adduser', (req: UserRequest, res: Response) => {
+  if (!req.users) {
+    return res.status(404).send({ error: { message: "Users not found ", status: 404 } });
   }
+  let newuser: User = req.body;
+  req.users.push(newuser);
+
+  fs.writeFile(path.resolve(__dirname, '../data/users.json'), JSON.stringify(req.users), (err) => {
+    if (err) console.log('Failed to write');
+    else console.log('User Saved');
+  });
+  res.send('done');
 });
 
 export default router;
